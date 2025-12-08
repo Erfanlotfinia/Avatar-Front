@@ -4,13 +4,11 @@ import { Room, RoomEvent, RemoteParticipant, Track } from "livekit-client";
 export interface LiveKitViewerProps {
   livekitUrl?: string | null;
   accessToken?: string | null;
-  disabled?: boolean;
 }
 
 const LiveKitViewer = ({
   livekitUrl,
-  accessToken,
-  disabled
+  accessToken
 }: LiveKitViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStream = useMemo(() => new MediaStream(), []);
@@ -47,6 +45,12 @@ const LiveKitViewer = ({
       }
     };
   }, [room]);
+
+  useEffect(() => {
+    if (livekitUrl && accessToken) {
+      connect();
+    }
+  }, [livekitUrl, accessToken]);
 
   const attachTrack = useCallback(
     (track: Track, participant: RemoteParticipant) => {
@@ -95,38 +99,10 @@ const LiveKitViewer = ({
     }
   }, [accessToken, attachTrack, livekitUrl, room]);
 
-  const disconnect = useCallback(async () => {
-    if (!room) {
-      setStatus("Not connected.");
-      return;
-    }
-
-    mediaStream.getTracks().forEach((track) => track.stop());
-    mediaStream.getTracks().forEach((track) => mediaStream.removeTrack(track));
-    room.disconnect();
-    setRoom(null);
-    setStatus("Disconnected.");
-  }, [mediaStream, room]);
-
   return (
     <div className="card video-wrapper">
       <h2>LiveKit Viewer</h2>
       <video ref={videoRef} autoPlay playsInline />
-      <div className="row">
-        <button
-          onClick={connect}
-          disabled={disabled || connecting || !livekitUrl || !accessToken}
-        >
-          {connecting ? "Connecting…" : "Connect"}
-        </button>
-        <button
-          className="secondary"
-          onClick={disconnect}
-          disabled={!room}
-        >
-          Disconnect
-        </button>
-      </div>
       <div className="status-pill">{status}</div>
     </div>
   );
