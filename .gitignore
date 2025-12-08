@@ -1,0 +1,40 @@
+# dependencies
+/node_modules/
+/.pnp
+.pnp.js
+
+# build / output
+/dist/
+/dist-ssr/
+/build/
+
+# logs and debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# runtime / cache
+*.local
+.env
+.env.*.local
+
+# coverage / tests
+/coverage/
+/*.lcov
+
+# OS / IDE / Editor files
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.idea/
+.vscode/
+.vscode/*
+
+# misc
+*.log
