@@ -22,8 +22,23 @@ const LiveKitViewer = ({
     const video = videoRef.current;
     if (video) {
       video.srcObject = mediaStream;
+      video.muted = false;
     }
   }, [mediaStream]);
+
+  const ensurePlayback = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    video.muted = false;
+    const playPromise = video.play();
+    if (playPromise) {
+      playPromise.catch((err) => {
+        console.warn("Autoplay failed, waiting for user interaction", err);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -37,10 +52,11 @@ const LiveKitViewer = ({
     (track: Track, participant: RemoteParticipant) => {
       if (track.kind === Track.Kind.Video || track.kind === Track.Kind.Audio) {
         mediaStream.addTrack(track.mediaStreamTrack);
+        ensurePlayback();
         setStatus(`Receiving media from ${participant.identity || "avatar"}`);
       }
     },
-    [mediaStream]
+    [ensurePlayback, mediaStream]
   );
 
   const connect = useCallback(async () => {
@@ -95,7 +111,7 @@ const LiveKitViewer = ({
   return (
     <div className="card video-wrapper">
       <h2>LiveKit Viewer</h2>
-      <video ref={videoRef} autoPlay playsInline muted />
+      <video ref={videoRef} autoPlay playsInline />
       <div className="row">
         <button
           onClick={connect}
